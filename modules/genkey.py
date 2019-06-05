@@ -4,12 +4,10 @@ import itertools
 import random
 import math
 
-'''
-generate_key(n)
-
-Generates HamiltonianKey with n vertices.
-'''
 def generate_key(n):
+    """
+    Generates HamiltonianKey with n vertices.
+    """
     key = HamiltonianKey(n)
 
     # generate hamiltonian cycle
@@ -21,9 +19,8 @@ def generate_key(n):
 
     # add at least one edge per vertex
     for i in range(n):
-        free_vertices = list(j for (i, j) in
-            itertools.product((i,), range(n))
-            if (i, j) not in key.public_key and i != j)
+        free_vertices = [j for (i, j) in itertools.product((i,), range(n))
+            if (i, j) not in key.public_key and i != j]
         if free_vertices:
             j = random.choice(free_vertices)
             key.public_key.add_edge(i, j)

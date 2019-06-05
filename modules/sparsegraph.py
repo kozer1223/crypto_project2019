@@ -1,89 +1,85 @@
 import numpy as np
 
 class SparseGraph:
-    '''
-    SparseGraph(n)
 
-    Create graph with n vertices.
-    '''
     def __init__(self, n):
+        """
+        Create graph with n vertices.
+        """
         self.__edges = set()
         self.__n = n
 
-    '''
-    graph.vertices()
+    @property
+    def n(self):
+        """
+        Returns number of vertices in graph.
+        """
+        return self.__n
 
-    Return iterator of all vertices.
-    '''
     def vertices(self):
+        """
+        Returns iterator of all vertices.
+        """
         return range(self.__n)
 
-    '''
-    graph.edges()
-
-    Return iterator of all edges.
-    '''
     def edges(self):
+        """
+        Return iterator of all edges.
+        """
         return (edge for edge in self.__edges)
 
-    '''
-    graph.add_edge(u, v)
+    def edges_count(self):
+        """
+        Return number |E| of all edges.
+        """
+        return len(self.__edges)
 
-    Add edge (u, v) to graph. Throws if u == v or u and v are not vertices.
-    '''
     def add_edge(self, u, v):
+        """
+        Add edge (u, v) to graph. Throws if u == v or u and v are not vertices.
+        """
         if not self.__edge_valid((u, v)):
             raise Exception('invalid edge')
         if (u > v):
             u, v = v, u
         self.__edges.add((u, v))
 
-    '''
-    graph.remove_edge(u, v)
-
-    Remove edge (u, v) from graph.
-    '''
     def remove_edge(self, u, v):
+        """
+        Remove edge (u, v) from graph.
+        """
         if (u > v):
             u, v = v, u
         self.__edges.remove((u, v))
 
-    '''
-    graph.clear_edges()
-
-    Remove all edges from graph.
-    '''
     def clear_edges(self):
+        """
+        Remove all edges from graph.
+        """
         self.__edges.clear()
 
-    '''
-    graph.adjacency_matrix()
-
-    Return numpy adjacency matrix, where element at index [u, v]
-    of matrix is 1 if edge is in graph, else 0.
-    '''
     def adjacency_matrix(self):
+        """
+        Return numpy adjacency matrix, where element at index [u, v]
+        of matrix is 1 if edge is in graph, else 0.
+        """
         matrix = np.zeros((self.__n, self.__n))
         for (u,v) in self.edges():
             matrix[(u, v)] = 1
             matrix[(v, u)] = 1
         return matrix
 
-    '''
-    graph.degree(vertex)
-
-    Return degree of vertex.
-    '''
     def degree(self, vertex):
+        """
+        Return degree of vertex.
+        """
         return sum(1 for i in range(self.__n) if (vertex, i) in self)
 
-    '''
-    x in graph
-
-    Returns whether vertex (as number) or edge (as tuple of vertices)
-    is in graph.
-    '''
     def __contains__(self, value):
+        """
+        Returns whether vertex (as number) or edge (as tuple of vertices)
+        is in graph.
+        """
         try:
             return 0 <= value < self.__n
         except:
@@ -95,12 +91,10 @@ class SparseGraph:
             except:
                 return False
 
-    '''
-    graph[(u, v)]
-
-    Returns 1 if edge index = (u, v) is in graph, else 0.
-    '''
     def __getitem__(self, index):
+        """
+        Returns 1 if edge index = (u, v) is in graph, else 0. (graph[(u, v)])
+        """
         (u, v) = index
         if (u > v):
             u, v = v, u
@@ -108,12 +102,10 @@ class SparseGraph:
             return 1
         return 0
 
-    '''
-    str(graph)
-
-    Returns string representation of graph and its edges.
-    '''
     def __str__(self):
+        """
+        Returns string representation of graph and its edges.
+        """
         return 'Graph(n=' + str(self.__n) + ', ' + str(self.__edges) + ')'
 
     def __repr__(self):

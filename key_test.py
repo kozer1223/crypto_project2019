@@ -10,3 +10,6 @@ print('degrees', degrees)
 
 print('graph as adjacency matrix')
 print(key.public_key.adjacency_matrix())
+
+print(HamiltonianKey.from_bytestring(key.write_private()))
+print(HamiltonianKey.from_bytestring(key.write_public()))
