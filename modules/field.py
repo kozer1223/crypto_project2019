@@ -1,10 +1,11 @@
 from functools import reduce
+from sympy import primefactors
 
 def Field(n):
     # should check if n is prime, but w/e
     class Field():
         __phi_n = n - 1
-        __phi_n_factors = None
+        __phi_n_prime_factors = None
 
         def __init__(self, val):
             self.val = val % n
@@ -29,10 +30,10 @@ def Field(n):
             if self.val == 0:
                 return False
             # init phi(n) factorization
-            if not Field.__phi_n_factors:
-                Field.__phi_n_factors = factors(Field.__phi_n)
-            for factor in Field.__phi_n_factors:
-                if factor != Field.__phi_n and self ** factor == Field(1):
+            if not Field.__phi_n_prime_factors:
+                Field.__phi_n_prime_factors = set(primefactors(Field.__phi_n))
+            for factor in Field.__phi_n_prime_factors:
+                if factor != Field.__phi_n and self ** (n // factor) == Field(1):
                     return False
             return True
         def __str__(self):
@@ -114,7 +115,3 @@ def CipollaField(p, b):
                     a = a * a
             return a * b
     return CipollaField
-
-def factors(n):
-    return set(reduce(list.__add__,
-                ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))
