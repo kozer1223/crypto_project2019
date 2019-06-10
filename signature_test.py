@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from modules.signature import sign, verify_sign
 from modules.sparsegraph import SparseGraph
 from modules.hamiltoniankey import HamiltonianKey

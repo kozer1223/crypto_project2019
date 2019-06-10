@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from Crypto.Util import number
 from modules.field import Field
 

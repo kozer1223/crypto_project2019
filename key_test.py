@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from modules.sparsegraph import SparseGraph
 from modules.hamiltoniankey import HamiltonianKey
 from modules.genkey import generate_key
