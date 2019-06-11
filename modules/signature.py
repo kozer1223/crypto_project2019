@@ -3,6 +3,7 @@ from .hamiltoniankey import HamiltonianKey
 from .commitment import *
 from Crypto.Hash import SHAKE128
 import random
+import json
 
 k = 64
 
@@ -28,8 +29,8 @@ def sign(m, key):
         for i in range(n):
             for j in range(i+1, n):
                 c, r = commit(key.public_key[(inv_permutation[i], inv_permutation[j])])
-                graph_boxes[(i, j)] = c
-                graph_keys[(i, j)] = r
+                graph_boxes[encode_tuple(i, j)] = c
+                graph_keys[encode_tuple(i, j)] = r
 
         rounds_data.append(
             (permutation, perm_boxes, perm_keys, graph_boxes, graph_keys)
@@ -58,7 +59,7 @@ def sign(m, key):
                 u, v = permutation[priv_key[i]], permutation[priv_key[(i+1) % n]]
                 if u > v:
                     u, v = v, u
-                graph_key = graph_keys[(u, v)]
+                graph_key = graph_keys[encode_tuple(u, v)]
                 keys.append((u, v, graph_key))
         else:
             # 0
@@ -68,7 +69,7 @@ def sign(m, key):
             inv_permutation = inv(permutation)
             for i in range(n):
                 for j in range(i+1, n):
-                    keys.append(graph_keys[(i, j)])
+                    keys.append(graph_keys[encode_tuple(i, j)])
         rounds_keys.append(keys)
 
     round_perm_boxes = [perm_boxes for (permutation, perm_boxes, perm_keys, graph_boxes, graph_keys) in rounds_data]
@@ -98,7 +99,7 @@ def verify_sign(m, key, signature):
                 cycle = []
                 for i in range(n):
                     u, v, graph_key = keys[i]
-                    if not verify_commitment(1, graph_boxes[(u, v)], graph_key):
+                    if not verify_commitment(1, graph_boxes[encode_tuple(u, v)], graph_key):
                         return False
                     next_u, next_v, _ = keys[(i + 1) % n]
                     intersection = set((u, v)).intersection(set((next_u, next_v)))
@@ -125,12 +126,26 @@ def verify_sign(m, key, signature):
                         # verify graph
                         if not verify_commitment(
                             key.public_key[inv_permutation[i], inv_permutation[j]],
-                            graph_boxes[(i, j)], graph_key):
+                            graph_boxes[encode_tuple(i, j)], graph_key):
                             return False
                         index += 1
     except:
         return False
     return True
+
+def write_signature(signature):
+    return SignatureEncoder().encode(signature)
+
+def read_signature(signature):
+    return json.loads(signature)
+
+class SignatureEncoder(json.JSONEncoder):
+    def default(self, o):
+        try:
+            v = o.val
+            return v
+        except:
+            return super(CustomEncoder, self).default(o)
 
 def get_bit(bytearray, n):
     byte = n // 8
@@ -147,3 +162,9 @@ def generate_perm(n):
     permutation = list(range(n))
     random.shuffle(permutation)
     return permutation
+
+def encode_tuple(*tup):
+    return ','.join(str(v) for v in tup)
+
+def decode_int_tuple(str):
+    return [int(v) for v in str.split(',')]

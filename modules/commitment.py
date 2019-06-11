@@ -14,4 +14,8 @@ def commit(m):
     return (c, r)
 
 def verify_commitment(m, c, r):
+    try:
+        c.val
+    except:
+        c = Fp(c)
     return g ** m * h ** r == c
