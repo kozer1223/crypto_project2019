@@ -160,7 +160,7 @@ def write_public_key(key, path):
     try:
         with open(path, 'wb') as f:
             f.write(key.write_public())
-        print('Public key saved to', dest)
+        print('Public key saved to', path)
     except Exception as e:
         print("Error when writing public key:", e)
         exit()
