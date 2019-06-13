@@ -114,13 +114,10 @@ def sign_command(args):
 
     try:
         with open(args.file, 'rb') as f:
-            message = f.read()
-    except Exception as e:
+            signature = sign(f, key)
+    except OSError as e:
         print("Error opening file:", e)
         exit()
-
-    try:
-        signature = sign(message, key)
     except Exception as e:
         print("Error when signing:", e)
         exit()
@@ -147,16 +144,13 @@ def verify_command(args):
 
     try:
         with open(args.file, 'rb') as f:
-            message = f.read()
-    except Exception as e:
+            if verify_sign(f, key, signature):
+                print("Signature valid")
+            else:
+                print("Signature invalid")
+    except OSError as e:
         print("Error opening file:", e)
         exit()
-
-    try:
-        if verify_sign(message, key, signature):
-            print("Signature valid")
-        else:
-            print("Signature invalid")
     except Exception as e:
         print("Error when veryfing signature:", e)
         exit()

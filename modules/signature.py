@@ -4,12 +4,18 @@ from .commitment import *
 from Crypto.Hash import SHAKE128
 import random
 import json
+import io
 
 k = 64
+CHUNK_SIZE = 1024
 
 def sign(m, key):
     if not key.private_key or len(key.private_key) != key.public_key.n:
         raise Exception('invalid private key')
+    if isinstance(m, str):
+        m = io.StringIO(m)
+    elif isinstance(m, bytes):
+        m = io.BytesIO(m)
 
     n = key.public_key.n
 
@@ -41,7 +47,10 @@ def sign(m, key):
     for (permutation, perm_boxes, perm_keys, graph_boxes, graph_keys) in rounds_data:
         shake.update(str(perm_boxes).encode())
         shake.update(str(graph_boxes).encode())
-    shake.update(str(m).encode())
+    m_bytes = m.read(CHUNK_SIZE)
+    while m_bytes:
+        shake.update(str(m_bytes).encode())
+        m_bytes = m.read(CHUNK_SIZE)
     H = shake.read(k // 8)
 
     # create output
@@ -77,6 +86,11 @@ def sign(m, key):
     return (round_perm_boxes, round_graph_boxes, rounds_keys)
 
 def verify_sign(m, key, signature):
+    if isinstance(m, str):
+        m = io.StringIO(m)
+    elif isinstance(m, bytes):
+        m = io.BytesIO(m)
+
     n = key.public_key.n
     (round_perm_boxes, round_graph_boxes, rounds_keys) = signature
 
@@ -84,7 +98,10 @@ def verify_sign(m, key, signature):
     for (perm_boxes, graph_boxes) in zip(round_perm_boxes, round_graph_boxes):
         shake.update(str(perm_boxes).encode())
         shake.update(str(graph_boxes).encode())
-    shake.update(str(m).encode())
+    m_bytes = m.read(CHUNK_SIZE)
+    while m_bytes:
+        shake.update(str(m_bytes).encode())
+        m_bytes = m.read(CHUNK_SIZE)
     H = shake.read(k // 8)
 
     try:
