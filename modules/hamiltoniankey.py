@@ -1,5 +1,6 @@
 from .sparsegraph import SparseGraph
 import struct
+import base64
 
 class HamiltonianKey:
 
@@ -28,15 +29,18 @@ class HamiltonianKey:
         """
         Returns serialized public key and private key as parseable bytestring.
         """
-        data = self.write_public()
+        data = self.__write_public_raw()
         for v in self.private_key:
             data += struct.pack('H', v)
-        return data
+        return base64.b64encode(data)
 
     def write_public(self):
         """"
         Returns serialized public key as parseable bytestring.
         """
+        return base64.b64encode(self.__write_public_raw())
+
+    def __write_public_raw(self):
         data = b''
         data += struct.pack('H', self.public_key.n)
         data += struct.pack('I', self.public_key.edges_count())
@@ -50,6 +54,7 @@ class HamiltonianKey:
         Returns a HamiltonianKey based on a bytestring of a serialized
         key (public or (public, private)).
         """
+        string = base64.b64decode(string)
         n = struct.unpack('H', string[0:2])[0]
         E = struct.unpack('I', string[2:6])[0]
         key = HamiltonianKey(n)
